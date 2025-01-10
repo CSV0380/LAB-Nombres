@@ -3,7 +3,7 @@ import csv
 from matplotlib import pyplot as plt
 from collections import Counter # brand new 😎😎😎
 from collections import defaultdict # brand new 😎😎😎
-
+from matplotlib import pyplot as plt
 
 FrecuenciaNombres = namedtuple("FrecuenciaNombres", "año, nombre, frecuencia, genero")
 
@@ -134,21 +134,72 @@ def calcular_año_frecuencia_por_nombre(lista, genero):
             res[persona.nombre].append((persona.año, persona.frecuencia)) #lo primero crea una clave en diccionario y luego le da los valores años y frecuencia
     return dict(res) #lo convertimos a un diccionario normal
 
-#APARTADO 12
-def calcular_nombre_mas_frecuente_por_año
+
+#APARTADO 12 (dificil de hacer 2 bucles, uno para añadir todas las personas; y otro para elegir dentro de todas esas personas, el mas frecuente de cada año)
+def calcular_nombre_mas_frecuente_por_año(lista, genero):
+    res = defaultdict(list)
+    for persona in lista:
+        if persona.genero == genero:
+            res[persona.año].append((persona.nombre, persona.frecuencia)) #si te piden que le des tres cosas, hacemos de clave el año y dejamos las otras dos como tuplas
+
+    resultado = []
+    for año, nombres in res.items(): #no se como funciona el .items()
+        #Obtener el nombre con la mayor frecuencia en cada año
+        nombre_frecuente = max(nombres, key=lambda x: x[1])
+        resultado.append((año, nombre_frecuente[0], nombre_frecuente[1]))
+
+    return sorted(resultado, key=lambda x: x[0]) #ordenarlo por años
+
+
+#APARTADO 13 (raro)
+def calcular_frecuencia_por_año(lista, nombre):
+    res = defaultdict(int) # Crear un diccionario donde las claves son los años y los valores son las frecuencias; usamos defaultdict para sumar las frecuencias automáticamente
+    nombre = nombre.upper()
+    for persona in lista:
+        if persona.nombre == nombre:
+            res[persona.año] += persona.frecuencia #sumamos las frecuencias
+    return sorted(res.items(), key = lambda x: x[0]) #convertimos el diccionario a una lista de tuplas (año, frecuencia) y ordenarlo por año
+
+
+#APARTADO 14
+def mostrar_evolucion_por_año(lista, nombre):
+    frecuencias_por_año  = calcular_frecuencia_por_año(lista, nombre)
+    años = []
+    for i in frecuencias_por_año:
+        años.append(i[0])
+    frecuencias = []
+    for i in frecuencias_por_año:
+        frecuencias.append(i[1])
+
+    plt.plot(años, frecuencias)
+    plt.title(f"Evolución del nombre '{nombre}'")
+    plt.show()
 
 
 
+#APARTADO 15
+def calcular_frecuencias_por_nombre(lista):
+    res = defaultdict(int)
+    for persona in lista:
+        res[persona.nombre] += persona.frecuencia #a la clave nombre le das el valor frecuencia
+    return dict(res)
 
 
+#APARTADO 16 (rebuscado)
+def mostrar_frecuencias_nombres(lista, numero = 10):
+    nombres_y_frecuencias = calcular_frecuencias_por_nombre(lista)
+
+    #ordenar por frecuencia en orden descendente y tomar los 'numero' más comunes
+    nombres_mas_comunes = sorted(nombres_y_frecuencias.items(), key=lambda x: x[1], reverse=True)[:numero] #los ordena segun la frecuencia y de mayor a menor
+    nombres, frecuencias = zip(*nombres_mas_comunes) #el * lo que hace es separarlos en dos listas en lugar de unirlos
+
+    plt.bar(nombres, frecuencias)
+    plt.xticks(rotation=80)
+    plt.title(f"Frecuencia de los {numero} nombres más comunes")
+    plt.show()
 
 
-
-
-
-
-
-
+#TEST
 if __name__ == "__main__":
     datos = leer_frecuencias_nombres("data\\frecuencias_nombres.csv") #daba fallos de lectura leer esta direccion porque tenia \f y eso es un comando default, por lo tanto hay tres soluciones poner \\f ó /f ó (r"data\frecuencias_nombres.csv")
     
@@ -172,5 +223,12 @@ if __name__ == "__main__":
 
     #print(f"{calcular_año_frecuencia_por_nombre(datos, "Hombre")}")
 
-    print(f"{calcular_año_frecuencia_por_nombre(datos, "Hombre")}")
+    #print(f"{calcular_nombre_mas_frecuente_por_año(datos, "Hombre")}")
 
+    #print(f"{calcular_frecuencia_por_año(datos, "Juan")}")
+
+    #mostrar_evolucion_por_año(datos, "Iker")
+
+    #print(f"{calcular_frecuencias_por_nombre(datos)}")
+
+    mostrar_frecuencias_nombres(datos, 20)
